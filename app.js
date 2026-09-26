@@ -10,7 +10,6 @@ const themeLabelText = document.querySelector('.theme-label-text');
 function getPreferredTheme() {
   const saved = localStorage.getItem(THEME_STORAGE_KEY);
   if (saved === 'dark' || saved === 'light') return saved;
-  // Fallback to system preference
   return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light';
@@ -25,7 +24,6 @@ function applyTheme(theme) {
   }
 }
 
-// Initial theme apply
 applyTheme(getPreferredTheme());
 
 if (btnThemeToggle) {
@@ -82,7 +80,59 @@ if (btnRailToggle) {
 }
 
 // ==========================================================================
-// 4. Date Helpers
+// 4. Live Landing Page Showcase Simulator Loop
+// ==========================================================================
+function startLiveLandingSimulation() {
+  const animCheck = document.getElementById('demo-anim-check');
+  const animTask = document.getElementById('demo-anim-task');
+  const typingText = document.getElementById('demo-typing-text');
+  if (!animCheck || !animTask || !typingText) return;
+
+  const phrase = 'Publish updated roadmap milestone';
+  let charIndex = 0;
+  let isDeleting = false;
+  let checkCompleted = false;
+
+  function tick() {
+    // 1. Typing animation simulation
+    if (!isDeleting && charIndex <= phrase.length) {
+      typingText.textContent = phrase.substring(0, charIndex);
+      charIndex++;
+      setTimeout(tick, 90);
+    } else if (!isDeleting && charIndex > phrase.length) {
+      // Pause after full typing, then complete the sample task
+      setTimeout(() => {
+        checkCompleted = !checkCompleted;
+        if (checkCompleted) {
+          animCheck.classList.add('filled');
+          animCheck.textContent = '✓';
+          animTask.classList.add('completed');
+        } else {
+          animCheck.classList.remove('filled');
+          animCheck.textContent = '';
+          animTask.classList.remove('completed');
+        }
+        isDeleting = true;
+        setTimeout(tick, 1200);
+      }, 1000);
+    } else if (isDeleting && charIndex >= 0) {
+      typingText.textContent = phrase.substring(0, charIndex);
+      charIndex--;
+      setTimeout(tick, 40);
+    } else {
+      isDeleting = false;
+      charIndex = 0;
+      setTimeout(tick, 600);
+    }
+  }
+
+  tick();
+}
+
+startLiveLandingSimulation();
+
+// ==========================================================================
+// 5. Date Helpers
 // ==========================================================================
 function getTodayString() {
   const d = new Date();
@@ -116,7 +166,7 @@ function formatDisplayDate(dateStr) {
 let selectedDueDate = getTodayString();
 
 // ==========================================================================
-// 5. Task State & Persistence
+// 6. Task State & Persistence
 // ==========================================================================
 const STORAGE_KEY = 'listium_tasks_v1';
 let currentFilter = 'all';
@@ -150,35 +200,27 @@ function getStarterTasks() {
   return [
     {
       id: 'task_1',
-      title: 'say hello to hafsa',
+      title: 'Review and reply to pending client inquiries',
       category: 'low',
-      dueDate: '2026-09-30',
+      dueDate: getTodayString(),
       completed: false,
       createdAt: Date.now()
     },
     {
       id: 'task_2',
-      title: 'sleep',
-      category: 'low',
+      title: 'Prepare clean project presentation slides',
+      category: 'medium',
       dueDate: getTodayString(),
       completed: false,
       createdAt: Date.now() - 1000
     },
     {
       id: 'task_3',
-      title: 'take a bath',
-      category: 'low',
+      title: 'Complete production task engine sprint',
+      category: 'high',
       dueDate: getTomorrowString(),
       completed: true,
       createdAt: Date.now() - 2000
-    },
-    {
-      id: 'task_4',
-      title: 'complete the to do list app',
-      category: 'high',
-      dueDate: getTomorrowString(),
-      completed: false,
-      createdAt: Date.now() - 3000
     }
   ];
 }
@@ -194,7 +236,7 @@ function saveTasks() {
 }
 
 // ==========================================================================
-// 6. Form Date Controls
+// 7. Form Date Controls
 // ==========================================================================
 const btnDatePresets = document.querySelectorAll('.btn-date-preset');
 const customDateInput = document.getElementById('task-due-date-custom');
@@ -225,7 +267,7 @@ if (customDateInput) {
 }
 
 // ==========================================================================
-// 7. Task Management & Inline Editing
+// 8. Task Management & Inline Editing
 // ==========================================================================
 const taskForm = document.getElementById('task-form');
 const taskTitleInput = document.getElementById('task-title-input');
@@ -373,7 +415,7 @@ function getPriorityLabel(cat) {
 }
 
 // ==========================================================================
-// 8. Rail Filtering Controls
+// 9. Rail Filtering Controls
 // ==========================================================================
 railNavItems.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -454,7 +496,7 @@ function updateRailCounts() {
 }
 
 // ==========================================================================
-// 9. Main Render Engine
+// 10. Main Render Engine
 // ==========================================================================
 function renderTasks() {
   const today = getTodayString();
@@ -554,5 +596,4 @@ function renderTasks() {
   }
 }
 
-// Initial boot
 renderTasks();
