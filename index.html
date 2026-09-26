@@ -73,24 +73,98 @@
     </div>
   </section>
 
-  <!-- Screen 2: Interactive Workspace -->
-  <main id="app-workspace" class="workspace hidden">
-    <!-- Workspace Navigation Bar -->
-    <header class="workspace-header">
-      <div class="workspace-brand">
-        <img src="./logo.svg" alt="Listium Emblem" class="brand-emblem-workspace" width="38" height="38">
-        <div class="workspace-title-group">
-          <h2>Listium</h2>
-          <span class="workspace-status">Daily Ledger</span>
-        </div>
+  <!-- Screen 2: Interactive Workspace (Gemini Rail Layout) -->
+  <div id="app-workspace" class="workspace-wrapper hidden">
+    
+    <!-- Gemini-Style Left Icon/Drawer Rail -->
+    <aside id="workspace-rail" class="workspace-rail" aria-label="Sidebar Navigation">
+      <!-- Top Logo Trigger Button -->
+      <div class="rail-top">
+        <button id="btn-rail-toggle" class="rail-logo-btn" type="button" title="Expand menu">
+          <img src="./logo.svg" alt="Listium Emblem" class="rail-logo-img" width="30" height="30">
+          <span class="rail-brand-name">Listium</span>
+        </button>
       </div>
-      <button id="btn-back-intro" class="btn-ghost" type="button">&larr; Back to Overview</button>
-    </header>
 
-    <!-- Workspace Dashboard Grid -->
-    <div class="workspace-layout">
+      <!-- Rail Navigation Icons / Items -->
+      <nav class="rail-nav">
+        <button class="rail-nav-item active" data-filter-target="all" title="All Tasks">
+          <div class="rail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <span class="rail-label">All Tasks</span>
+          <span class="rail-badge" id="count-all">0</span>
+        </button>
+
+        <button class="rail-nav-item" data-filter-target="today" title="Today">
+          <div class="rail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
+          <span class="rail-label">Today</span>
+          <span class="rail-badge" id="count-today">0</span>
+        </button>
+
+        <button class="rail-nav-item" data-filter-target="upcoming" title="Upcoming">
+          <div class="rail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          </div>
+          <span class="rail-label">Upcoming</span>
+          <span class="rail-badge" id="count-upcoming">0</span>
+        </button>
+
+        <button class="rail-nav-item" data-filter-target="completed" title="Completed">
+          <div class="rail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <span class="rail-label">Completed</span>
+          <span class="rail-badge" id="count-completed">0</span>
+        </button>
+      </nav>
+
+      <!-- Priority Filter Section (visible when expanded) -->
+      <div class="rail-priority-section">
+        <span class="rail-section-header">Priority Tiers</span>
+        <button class="rail-priority-item" data-priority-target="high">
+          <span class="p-dot dot-high"></span>
+          <span class="rail-label">High Priority</span>
+          <span class="rail-badge" id="count-p-high">0</span>
+        </button>
+        <button class="rail-priority-item" data-priority-target="medium">
+          <span class="p-dot dot-medium"></span>
+          <span class="rail-label">Medium</span>
+          <span class="rail-badge" id="count-p-medium">0</span>
+        </button>
+        <button class="rail-priority-item" data-priority-target="low">
+          <span class="p-dot dot-low"></span>
+          <span class="rail-label">Low</span>
+          <span class="rail-badge" id="count-p-low">0</span>
+        </button>
+      </div>
+
+      <!-- Rail Bottom Settings / Overview Button -->
+      <div class="rail-bottom">
+        <button id="btn-back-intro" class="rail-bottom-btn" type="button" title="Back to Overview">
+          <div class="rail-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </div>
+          <span class="rail-label">Overview</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Content Area -->
+    <main class="workspace-main">
+      <header class="workspace-main-topbar">
+        <div class="topbar-heading">
+          <h2 id="view-title">All Tasks</h2>
+          <span class="workspace-status" id="view-subtitle">Daily Ledger</span>
+        </div>
+        <div class="ledger-summary" id="ledger-summary">
+          0 of 0 completed
+        </div>
+      </header>
+
       <section class="task-hub">
-        
         <!-- Task Creator Form -->
         <div class="task-input-card">
           <form id="task-form" class="task-form">
@@ -107,7 +181,7 @@
               <div class="category-selectors">
                 <label class="cat-chip">
                   <input type="radio" name="task-category" value="high" checked>
-                  <span class="chip-label chip-high">High</span>
+                  <span class="chip-label chip-high">High Priority</span>
                 </label>
                 <label class="cat-chip">
                   <input type="radio" name="task-category" value="medium">
@@ -133,19 +207,6 @@
           </form>
         </div>
 
-        <!-- Task Filtering & Header Status -->
-        <div class="ledger-header">
-          <div class="filter-group">
-            <button class="filter-tab active" data-filter="all">All</button>
-            <button class="filter-tab" data-filter="today">Today</button>
-            <button class="filter-tab" data-filter="upcoming">Upcoming</button>
-            <button class="filter-tab" data-filter="completed">Completed</button>
-          </div>
-          <div class="ledger-summary" id="ledger-summary">
-            0 of 0 completed
-          </div>
-        </div>
-
         <!-- Dynamic Task List Container -->
         <div id="task-list" class="task-list">
           <!-- Injected dynamically via app.js -->
@@ -157,10 +218,10 @@
           <h3>Your slate is clear</h3>
           <p>Add a task above with a priority level and schedule to begin.</p>
         </div>
-
       </section>
-    </div>
-  </main>
+    </main>
+
+  </div>
 
   <script type="module" src="./app.js"></script>
 </body>

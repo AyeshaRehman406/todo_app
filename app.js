@@ -20,6 +20,7 @@ function enterWorkspace() {
 }
 
 function returnToLanding() {
+  workspaceRail.classList.remove('expanded');
   appWorkspace.classList.add('hidden');
   introScreen.classList.remove('hidden');
   setTimeout(() => {
@@ -33,7 +34,20 @@ if (btnEnterNav) btnEnterNav.addEventListener('click', enterWorkspace);
 if (btnBackIntro) btnBackIntro.addEventListener('click', returnToLanding);
 
 // ==========================================================================
-// 2. Date Helpers (ISO YYYY-MM-DD)
+// 2. Gemini-Style Logo Rail Toggle
+// ==========================================================================
+const workspaceRail = document.getElementById('workspace-rail');
+const btnRailToggle = document.getElementById('btn-rail-toggle');
+
+if (btnRailToggle) {
+  btnRailToggle.addEventListener('click', () => {
+    // Toggles between the slim icon strip and the expanded drawer
+    workspaceRail.classList.toggle('expanded');
+  });
+}
+
+// ==========================================================================
+// 3. Date Helpers
 // ==========================================================================
 function getTodayString() {
   const d = new Date();
@@ -67,12 +81,11 @@ function formatDisplayDate(dateStr) {
 let selectedDueDate = getTodayString();
 
 // ==========================================================================
-// 3. Task Engine State & Storage
+// 4. Task State & Persistence
 // ==========================================================================
 const STORAGE_KEY = 'listium_tasks_v1';
 let currentFilter = 'all';
 
-// Safe normalization for categories
 function normalizeCategory(cat) {
   if (cat === 'deep-work') return 'high';
   if (cat === 'quick-win') return 'medium';
@@ -92,7 +105,7 @@ function loadTasks() {
       dueDate: task.dueDate || getTodayString()
     }));
   } catch (err) {
-    console.error('Failed to load tasks from localStorage', err);
+    console.error('Failed to load tasks', err);
     return getStarterTasks();
   }
 }
@@ -101,27 +114,35 @@ function getStarterTasks() {
   return [
     {
       id: 'task_1',
-      title: 'Finalize quarterly architecture roadmap',
-      category: 'high',
-      dueDate: getTodayString(),
+      title: 'say hello to hafsa',
+      category: 'low',
+      dueDate: '2026-09-30',
       completed: false,
       createdAt: Date.now()
     },
     {
       id: 'task_2',
-      title: 'Review and reply to client design comments',
-      category: 'medium',
+      title: 'sleep',
+      category: 'low',
       dueDate: getTodayString(),
-      completed: true,
-      createdAt: Date.now() - 100000
+      completed: false,
+      createdAt: Date.now() - 1000
     },
     {
       id: 'task_3',
-      title: 'Organize project repository tags',
+      title: 'take a bath',
       category: 'low',
       dueDate: getTomorrowString(),
+      completed: true,
+      createdAt: Date.now() - 2000
+    },
+    {
+      id: 'task_4',
+      title: 'complete the to do list app',
+      category: 'high',
+      dueDate: getTomorrowString(),
       completed: false,
-      createdAt: Date.now() - 200000
+      createdAt: Date.now() - 3000
     }
   ];
 }
@@ -137,7 +158,7 @@ function saveTasks() {
 }
 
 // ==========================================================================
-// 4. Form Date Preset Controls
+// 5. Form Date Controls
 // ==========================================================================
 const btnDatePresets = document.querySelectorAll('.btn-date-preset');
 const customDateInput = document.getElementById('task-due-date-custom');
@@ -168,14 +189,17 @@ if (customDateInput) {
 }
 
 // ==========================================================================
-// 5. Task CRUD Management
+// 6. Task Management
 // ==========================================================================
 const taskForm = document.getElementById('task-form');
 const taskTitleInput = document.getElementById('task-title-input');
 const taskList = document.getElementById('task-list');
 const emptyState = document.getElementById('empty-state');
 const ledgerSummary = document.getElementById('ledger-summary');
-const filterTabs = document.querySelectorAll('.filter-tab');
+const viewTitle = document.getElementById('view-title');
+const viewSubtitle = document.getElementById('view-subtitle');
+const railNavItems = document.querySelectorAll('.rail-nav-item');
+const railPriorityItems = document.querySelectorAll('.rail-priority-item');
 
 taskForm.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -236,17 +260,89 @@ function getPriorityLabel(cat) {
 }
 
 // ==========================================================================
-// 6. Smart Views & Rendering
+// 7. Rail Filtering Controls
 // ==========================================================================
-filterTabs.forEach((tab) => {
-  tab.addEventListener('click', () => {
-    filterTabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    currentFilter = tab.dataset.filter;
+railNavItems.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    railNavItems.forEach(b => b.classList.remove('active'));
+    railPriorityItems.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    currentFilter = btn.dataset.filterTarget;
+    updateViewHeading(currentFilter);
     renderTasks();
   });
 });
 
+railPriorityItems.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    railNavItems.forEach(b => b.classList.remove('active'));
+    railPriorityItems.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    currentFilter = 'p-' + btn.dataset.priorityTarget;
+    updateViewHeading(currentFilter);
+    renderTasks();
+  });
+});
+
+function updateViewHeading(filter) {
+  switch (filter) {
+    case 'all':
+      viewTitle.textContent = 'All Tasks';
+      viewSubtitle.textContent = 'Daily Ledger';
+      break;
+    case 'today':
+      viewTitle.textContent = 'Today';
+      viewSubtitle.textContent = 'Scheduled for today';
+      break;
+    case 'upcoming':
+      viewTitle.textContent = 'Upcoming';
+      viewSubtitle.textContent = 'Future deliverables';
+      break;
+    case 'completed':
+      viewTitle.textContent = 'Completed';
+      viewSubtitle.textContent = 'Archived progress';
+      break;
+    case 'p-high':
+      viewTitle.textContent = 'High Priority';
+      viewSubtitle.textContent = 'Critical Focus Items';
+      break;
+    case 'p-medium':
+      viewTitle.textContent = 'Medium Priority';
+      viewSubtitle.textContent = 'Steady progress';
+      break;
+    case 'p-low':
+      viewTitle.textContent = 'Low Priority';
+      viewSubtitle.textContent = 'Routine & upkeep';
+      break;
+  }
+}
+
+function updateRailCounts() {
+  const today = getTodayString();
+  const allCount = tasks.length;
+  const todayCount = tasks.filter(t => !t.completed && t.dueDate <= today).length;
+  const upcomingCount = tasks.filter(t => !t.completed && t.dueDate > today).length;
+  const completedCount = tasks.filter(t => t.completed).length;
+
+  const highCount = tasks.filter(t => !t.completed && t.category === 'high').length;
+  const medCount = tasks.filter(t => !t.completed && t.category === 'medium').length;
+  const lowCount = tasks.filter(t => !t.completed && t.category === 'low').length;
+
+  document.getElementById('count-all').textContent = allCount;
+  document.getElementById('count-today').textContent = todayCount;
+  document.getElementById('count-upcoming').textContent = upcomingCount;
+  document.getElementById('count-completed').textContent = completedCount;
+
+  document.getElementById('count-p-high').textContent = highCount;
+  document.getElementById('count-p-medium').textContent = medCount;
+  document.getElementById('count-p-low').textContent = lowCount;
+}
+
+// ==========================================================================
+// 8. Main Render Engine
+// ==========================================================================
 function renderTasks() {
   const today = getTodayString();
 
@@ -257,11 +353,19 @@ function renderTasks() {
     filtered = tasks.filter(t => !t.completed && t.dueDate > today);
   } else if (currentFilter === 'completed') {
     filtered = tasks.filter(t => t.completed);
+  } else if (currentFilter === 'p-high') {
+    filtered = tasks.filter(t => !t.completed && t.category === 'high');
+  } else if (currentFilter === 'p-medium') {
+    filtered = tasks.filter(t => !t.completed && t.category === 'medium');
+  } else if (currentFilter === 'p-low') {
+    filtered = tasks.filter(t => !t.completed && t.category === 'low');
   }
 
   const totalCount = tasks.length;
   const completedCount = tasks.filter(t => t.completed).length;
   ledgerSummary.textContent = `${completedCount} of ${totalCount} completed`;
+
+  updateRailCounts();
 
   taskList.innerHTML = '';
   if (filtered.length === 0) {

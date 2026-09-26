@@ -25,7 +25,6 @@
   --transition:    all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Base Reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -45,7 +44,7 @@ body {
 }
 
 /* ==========================================================================
-   Landing Navigation & Hero
+   Landing Screen
    ========================================================================== */
 .landing-nav {
   max-width: 1240px;
@@ -320,65 +319,255 @@ body {
 .badge-active { background: #E8F5E9; color: #2E7D32; }
 
 /* ==========================================================================
-   Workspace Styles
+   Gemini-Style Rail & Workspace Layout
    ========================================================================== */
-.workspace {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 40px 24px 80px 24px;
-}
-
-.workspace-header {
+.workspace-wrapper {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--color-peach-protein);
-  margin-bottom: 32px;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-body);
 }
 
-.workspace-brand {
+/* Slim Left Rail (collapsible/expandable like Gemini) */
+.workspace-rail {
+  width: 68px;
+  background-color: #FAF4E8;
+  border-right: 1px solid var(--color-peach-protein);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 18px 12px;
+  transition: width 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 50;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Expanded state when clicking logo */
+.workspace-rail.expanded {
+  width: 250px;
+  box-shadow: 10px 0 30px rgba(129, 130, 99, 0.08);
+}
+
+.rail-top {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* Gemini Top-Left Logo Button */
+.rail-logo-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 14px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  transition: var(--transition);
+  width: 100%;
 }
 
-.brand-emblem-workspace {
+.rail-logo-btn:hover {
+  background-color: var(--color-honey-oatmilk);
+}
+
+.rail-logo-img {
   display: block;
-  filter: drop-shadow(0 4px 8px rgba(129, 130, 99, 0.15));
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(129, 130, 99, 0.25));
+  transition: transform 0.2s ease;
 }
 
-.workspace-title-group h2 {
+.rail-logo-btn:hover .rail-logo-img {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.rail-brand-name {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.85rem;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-main);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.workspace-rail.expanded .rail-brand-name {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Rail Navigation Icons */
+.rail-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.rail-nav-item,
+.rail-priority-item,
+.rail-bottom-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.9rem;
   font-weight: 600;
+  transition: var(--transition);
+  width: 100%;
+  text-align: left;
+}
+
+.rail-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rail-label {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  flex-grow: 1;
+}
+
+.workspace-rail.expanded .rail-label {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rail-nav-item:hover,
+.rail-priority-item:hover,
+.rail-bottom-btn:hover {
+  background-color: var(--color-honey-oatmilk);
+  color: var(--text-main);
+}
+
+.rail-nav-item.active {
+  background-color: var(--color-savory-sage);
+  color: #FFFFFF;
+}
+
+.rail-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: #FCF9F3;
+  color: var(--text-muted);
+  border: 1px solid var(--color-honey-oatmilk);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.workspace-rail.expanded .rail-badge {
+  opacity: 1;
+}
+
+.rail-nav-item.active .rail-badge {
+  background: #FFFFFF;
+  color: var(--color-savory-sage);
+  border-color: #FFFFFF;
+}
+
+/* Priority Section inside rail */
+.rail-priority-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-peach-protein);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rail-section-header {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 0 10px 6px 10px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.workspace-rail.expanded .rail-section-header {
+  opacity: 1;
+}
+
+.p-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-left: 7px;
+}
+
+.dot-high { background: #A33C29; }
+.dot-medium { background: var(--color-savory-sage); }
+.dot-low { background: #525439; }
+
+.rail-bottom {
+  margin-top: auto;
+  width: 100%;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-peach-protein);
+}
+
+/* ==========================================================================
+   Main Workspace Content Canvas
+   ========================================================================== */
+.workspace-main {
+  flex-grow: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 32px 80px 32px;
+}
+
+.workspace-main-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-peach-protein);
+  margin-bottom: 30px;
+}
+
+.topbar-heading h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.1rem;
+  font-weight: 700;
   color: var(--text-main);
   line-height: 1.1;
 }
 
 .workspace-status {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--color-savory-sage);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.btn-ghost {
-  background: none;
-  border: 1px solid var(--color-oat-latte);
-  padding: 9px 18px;
-  border-radius: var(--radius-pill);
-  color: var(--text-muted);
-  cursor: pointer;
-  font-weight: 600;
+.ledger-summary {
   font-size: 0.85rem;
-  transition: var(--transition);
-}
-
-.btn-ghost:hover {
-  background: var(--color-honey-oatmilk);
-  color: var(--text-main);
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 /* ==========================================================================
@@ -390,7 +579,7 @@ body {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-soft);
   padding: 18px 20px;
-  margin-bottom: 32px;
+  margin-bottom: 30px;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -430,7 +619,6 @@ body {
   padding-top: 14px;
 }
 
-/* Priority Radios */
 .category-selectors {
   display: flex;
   gap: 8px;
@@ -461,7 +649,6 @@ body {
   box-shadow: 0 0 0 2px var(--color-savory-sage);
 }
 
-/* Smart Scheduling Selectors */
 .schedule-selectors {
   display: flex;
   align-items: center;
@@ -532,51 +719,6 @@ body {
 
 .btn-add-task:hover {
   background: var(--primary-hover);
-}
-
-/* ==========================================================================
-   Ledger Tabs & Status Summary
-   ========================================================================== */
-.ledger-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 0 4px;
-}
-
-.filter-group {
-  display: flex;
-  gap: 6px;
-}
-
-.filter-tab {
-  background: none;
-  border: none;
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding: 6px 12px;
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.filter-tab:hover {
-  color: var(--text-main);
-}
-
-.filter-tab.active {
-  background: var(--color-honey-oatmilk);
-  color: var(--color-savory-sage);
-  font-weight: 700;
-}
-
-.ledger-summary {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text-muted);
 }
 
 /* ==========================================================================
@@ -686,7 +828,6 @@ body {
   border-color: var(--color-peach-protein);
 }
 
-/* Priority Badges */
 .task-badge-tag {
   font-size: 0.7rem;
   font-weight: 700;
@@ -718,7 +859,6 @@ body {
   background: #FDF1EE;
 }
 
-/* Empty State */
 .empty-state {
   text-align: center;
   padding: 56px 20px;
@@ -751,20 +891,4 @@ body {
 .empty-state p {
   font-size: 0.9rem;
   color: var(--text-muted);
-}
-
-/* Responsive */
-@media (max-width: 880px) {
-  .hero-split {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  .task-input-controls {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .schedule-selectors {
-    width: 100%;
-    justify-content: space-between;
-  }
 }
