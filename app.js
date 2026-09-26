@@ -1,7 +1,43 @@
 import './styles.css';
 
 // ==========================================================================
-// 1. Navigation & Screen Transitions
+// 1. Theme Engine & Local Storage Persistence
+// ==========================================================================
+const THEME_STORAGE_KEY = 'listium_theme_v1';
+const btnThemeToggle = document.getElementById('btn-theme-toggle');
+const themeLabelText = document.querySelector('.theme-label-text');
+
+function getPreferredTheme() {
+  const saved = localStorage.getItem(THEME_STORAGE_KEY);
+  if (saved === 'dark' || saved === 'light') return saved;
+  // Fallback to system preference
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
+
+  if (themeLabelText) {
+    themeLabelText.textContent = theme === 'dark' ? 'Light Theme' : 'Dark Theme';
+  }
+}
+
+// Initial theme apply
+applyTheme(getPreferredTheme());
+
+if (btnThemeToggle) {
+  btnThemeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+  });
+}
+
+// ==========================================================================
+// 2. Navigation & Screen Transitions
 // ==========================================================================
 const introScreen = document.getElementById('intro-screen');
 const appWorkspace = document.getElementById('app-workspace');
@@ -34,20 +70,19 @@ if (btnEnterNav) btnEnterNav.addEventListener('click', enterWorkspace);
 if (btnBackIntro) btnBackIntro.addEventListener('click', returnToLanding);
 
 // ==========================================================================
-// 2. Gemini-Style Logo Rail Toggle
+// 3. Gemini-Style Logo Rail Toggle
 // ==========================================================================
 const workspaceRail = document.getElementById('workspace-rail');
 const btnRailToggle = document.getElementById('btn-rail-toggle');
 
 if (btnRailToggle) {
   btnRailToggle.addEventListener('click', () => {
-    // Toggles between the slim icon strip and the expanded drawer
     workspaceRail.classList.toggle('expanded');
   });
 }
 
 // ==========================================================================
-// 3. Date Helpers
+// 4. Date Helpers
 // ==========================================================================
 function getTodayString() {
   const d = new Date();
@@ -81,10 +116,11 @@ function formatDisplayDate(dateStr) {
 let selectedDueDate = getTodayString();
 
 // ==========================================================================
-// 4. Task State & Persistence
+// 5. Task State & Persistence
 // ==========================================================================
 const STORAGE_KEY = 'listium_tasks_v1';
 let currentFilter = 'all';
+let editingTaskId = null;
 
 function normalizeCategory(cat) {
   if (cat === 'deep-work') return 'high';
@@ -158,7 +194,7 @@ function saveTasks() {
 }
 
 // ==========================================================================
-// 5. Form Date Controls
+// 6. Form Date Controls
 // ==========================================================================
 const btnDatePresets = document.querySelectorAll('.btn-date-preset');
 const customDateInput = document.getElementById('task-due-date-custom');
@@ -189,7 +225,7 @@ if (customDateInput) {
 }
 
 // ==========================================================================
-// 6. Task Management
+// 7. Task Management & Inline Editing
 // ==========================================================================
 const taskForm = document.getElementById('task-form');
 const taskTitleInput = document.getElementById('task-title-input');
@@ -226,29 +262,106 @@ taskForm.addEventListener('submit', (e) => {
   taskTitleInput.focus();
 });
 
+function cyclePriority(currentCat) {
+  if (currentCat === 'high') return 'medium';
+  if (currentCat === 'medium') return 'low';
+  return 'high';
+}
+
 taskList.addEventListener('click', (e) => {
   const toggleBtn = e.target.closest('.task-checkbox-btn');
   const deleteBtn = e.target.closest('.btn-delete-task');
+  const editBtn = e.target.closest('.btn-edit-task');
+  const saveBtn = e.target.closest('.btn-save-task');
+  const badgeBtn = e.target.closest('.task-badge-tag');
   const taskRow = e.target.closest('.task-item');
 
   if (!taskRow) return;
   const taskId = taskRow.dataset.id;
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
 
   if (toggleBtn) {
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      task.completed = !task.completed;
-      saveTasks();
-      renderTasks();
-    }
+    task.completed = !task.completed;
+    saveTasks();
+    renderTasks();
+    return;
   }
 
   if (deleteBtn) {
     tasks = tasks.filter(t => t.id !== taskId);
+    if (editingTaskId === taskId) editingTaskId = null;
     saveTasks();
+    renderTasks();
+    return;
+  }
+
+  if (badgeBtn) {
+    task.category = cyclePriority(task.category);
+    saveTasks();
+    renderTasks();
+    return;
+  }
+
+  if (editBtn) {
+    editingTaskId = taskId;
+    renderTasks();
+    const editInput = taskRow.querySelector('.task-edit-input');
+    if (editInput) {
+      editInput.focus();
+      editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+    }
+    return;
+  }
+
+  if (saveBtn) {
+    const editInput = taskRow.querySelector('.task-edit-input');
+    if (editInput) {
+      saveInlineEdit(taskId, editInput.value);
+    }
+  }
+});
+
+taskList.addEventListener('dblclick', (e) => {
+  const titleText = e.target.closest('.task-title-text');
+  const taskRow = e.target.closest('.task-item');
+  if (titleText && taskRow) {
+    editingTaskId = taskRow.dataset.id;
+    renderTasks();
+    const editInput = taskRow.querySelector('.task-edit-input');
+    if (editInput) {
+      editInput.focus();
+      editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+    }
+  }
+});
+
+taskList.addEventListener('keydown', (e) => {
+  if (!e.target.classList.contains('task-edit-input')) return;
+  const taskRow = e.target.closest('.task-item');
+  if (!taskRow) return;
+  const taskId = taskRow.dataset.id;
+
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    saveInlineEdit(taskId, e.target.value);
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    editingTaskId = null;
     renderTasks();
   }
 });
+
+function saveInlineEdit(taskId, newTitle) {
+  const cleanTitle = newTitle.trim();
+  const task = tasks.find(t => t.id === taskId);
+  if (task && cleanTitle) {
+    task.title = cleanTitle;
+    saveTasks();
+  }
+  editingTaskId = null;
+  renderTasks();
+}
 
 function getPriorityLabel(cat) {
   switch (cat) {
@@ -260,7 +373,7 @@ function getPriorityLabel(cat) {
 }
 
 // ==========================================================================
-// 7. Rail Filtering Controls
+// 8. Rail Filtering Controls
 // ==========================================================================
 railNavItems.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -341,7 +454,7 @@ function updateRailCounts() {
 }
 
 // ==========================================================================
-// 8. Main Render Engine
+// 9. Main Render Engine
 // ==========================================================================
 function renderTasks() {
   const today = getTodayString();
@@ -389,6 +502,8 @@ function renderTasks() {
         }
       }
 
+      const isEditing = editingTaskId === task.id;
+
       item.innerHTML = `
         <div class="task-main-col">
           <button class="task-checkbox-btn" type="button" aria-label="Toggle completed">
@@ -396,13 +511,35 @@ function renderTasks() {
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </button>
-          <span class="task-title-text"></span>
+
+          ${
+            isEditing
+              ? `<input type="text" class="task-edit-input" value="${task.title.replace(/"/g, '&quot;')}" />`
+              : `<span class="task-title-text" title="Double-click to edit">${task.title}</span>`
+          }
         </div>
+
         <div class="task-actions-col">
           <span class="task-due-badge ${dueClass}">${formatDisplayDate(task.dueDate)}</span>
-          <span class="task-badge-tag ${task.category}">${getPriorityLabel(task.category)}</span>
-          <button class="btn-delete-task" type="button" aria-label="Delete task">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <span class="task-badge-tag ${task.category}" title="Click to cycle priority">${getPriorityLabel(task.category)}</span>
+          
+          ${
+            isEditing
+              ? `<button class="btn-icon-action btn-save-task" type="button" aria-label="Save changes" title="Save changes (Enter)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </button>`
+              : `<button class="btn-icon-action btn-edit-task" type="button" aria-label="Edit task" title="Edit task">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>`
+          }
+
+          <button class="btn-icon-action btn-delete-task" type="button" aria-label="Delete task" title="Delete task">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
             </svg>
@@ -410,7 +547,6 @@ function renderTasks() {
         </div>
       `;
 
-      item.querySelector('.task-title-text').textContent = task.title;
       fragment.appendChild(item);
     });
 
