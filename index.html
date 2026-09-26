@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listium — Clarity for what matters next</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+  <!-- Screen 1: Landing Experience -->
+  <section id="intro-screen" class="intro-screen">
+    <header class="landing-nav">
+      <div class="brand-lockup">
+        <img src="./logo.svg" alt="Listium Emblem" class="brand-logo-icon" width="36" height="36">
+        <span class="brand-logo-text">Listium</span>
+      </div>
+      <div class="nav-right">
+        <span class="nav-badge">Calm Productivity</span>
+        <button id="btn-enter-nav" class="btn-primary-sm" type="button">Open Workspace</button>
+      </div>
+    </header>
+
+    <div class="landing-container">
+      <div class="hero-split">
+        <div class="hero-text-col">
+          <span class="intro-pill">Personal Task Architecture</span>
+          <h1 class="hero-title">Get things done, without the clutter.</h1>
+          <p class="hero-desc">
+            A simple, calm space to plan your day, stay focused, and finish what you start.
+          </p>
+          <div class="hero-actions">
+            <button id="btn-enter" class="btn-primary" type="button">
+              <span>Launch My Workspace</span>
+              <svg class="icon-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+            <span class="hero-subtext">No sign-up friction &bull; Local-first &bull; Distraction-free</span>
+          </div>
+        </div>
+
+        <div class="hero-visual-col">
+          <div class="hero-image-card">
+            <div class="window-chrome">
+              <div class="traffic-dots"><span></span><span></span><span></span></div>
+              <span class="window-title">Workspace Ambience</span>
+              <span class="window-badge badge-active">Live Focus</span>
+            </div>
+            <div class="image-wrapper main-img-wrapper">
+              <img 
+                src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1000&q=80" 
+                alt="Minimalist productive desk" 
+                class="hero-img"
+              >
+              <div class="floating-glass-pill">
+                <div class="glass-check">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div>
+                  <strong>High Priority Milestone</strong>
+                  <span>Sprint Outcome &bull; Scheduled</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 2: Interactive Workspace -->
+  <main id="app-workspace" class="workspace hidden">
+    <!-- Workspace Navigation Bar -->
+    <header class="workspace-header">
+      <div class="workspace-brand">
+        <img src="./logo.svg" alt="Listium Emblem" class="brand-emblem-workspace" width="38" height="38">
+        <div class="workspace-title-group">
+          <h2>Listium</h2>
+          <span class="workspace-status">Daily Ledger</span>
+        </div>
+      </div>
+      <button id="btn-back-intro" class="btn-ghost" type="button">&larr; Back to Overview</button>
+    </header>
+
+    <!-- Workspace Dashboard Grid -->
+    <div class="workspace-layout">
+      <section class="task-hub">
+        
+        <!-- Task Creator Form -->
+        <div class="task-input-card">
+          <form id="task-form" class="task-form">
+            <input 
+              type="text" 
+              id="task-title-input" 
+              placeholder="What needs deliberate attention today? (Press Enter to add)" 
+              autocomplete="off"
+              required
+            >
+            <div class="task-input-controls">
+              
+              <!-- Priority Level Radios -->
+              <div class="category-selectors">
+                <label class="cat-chip">
+                  <input type="radio" name="task-category" value="high" checked>
+                  <span class="chip-label chip-high">High</span>
+                </label>
+                <label class="cat-chip">
+                  <input type="radio" name="task-category" value="medium">
+                  <span class="chip-label chip-medium">Medium</span>
+                </label>
+                <label class="cat-chip">
+                  <input type="radio" name="task-category" value="low">
+                  <span class="chip-label chip-low">Low</span>
+                </label>
+              </div>
+
+              <!-- Smart Schedule Selectors -->
+              <div class="schedule-selectors">
+                <div class="date-chips">
+                  <button type="button" class="btn-date-preset active" data-date="today">Today</button>
+                  <button type="button" class="btn-date-preset" data-date="tomorrow">Tomorrow</button>
+                  <input type="date" id="task-due-date-custom" class="date-custom-input" title="Choose specific date">
+                </div>
+                <button type="submit" class="btn-add-task">Add Task</button>
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+        <!-- Task Filtering & Header Status -->
+        <div class="ledger-header">
+          <div class="filter-group">
+            <button class="filter-tab active" data-filter="all">All</button>
+            <button class="filter-tab" data-filter="today">Today</button>
+            <button class="filter-tab" data-filter="upcoming">Upcoming</button>
+            <button class="filter-tab" data-filter="completed">Completed</button>
+          </div>
+          <div class="ledger-summary" id="ledger-summary">
+            0 of 0 completed
+          </div>
+        </div>
+
+        <!-- Dynamic Task List Container -->
+        <div id="task-list" class="task-list">
+          <!-- Injected dynamically via app.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state hidden">
+          <div class="empty-icon">✓</div>
+          <h3>Your slate is clear</h3>
+          <p>Add a task above with a priority level and schedule to begin.</p>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
