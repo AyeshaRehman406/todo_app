@@ -35,13 +35,15 @@ if (btnThemeToggle) {
 }
 
 // ==========================================================================
-// 2. Navigation & Screen Transitions
+// 2. Navigation & Smooth Anchor Tracking
 // ==========================================================================
 const introScreen = document.getElementById('intro-screen');
 const appWorkspace = document.getElementById('app-workspace');
 const btnEnter = document.getElementById('btn-enter');
 const btnEnterNav = document.getElementById('btn-enter-nav');
+const btnEnterManifesto = document.getElementById('btn-enter-manifesto');
 const btnBackIntro = document.getElementById('btn-back-intro');
+const navLinks = document.querySelectorAll('.nav-links-right .nav-link');
 
 function enterWorkspace() {
   introScreen.classList.add('fade-out');
@@ -65,7 +67,31 @@ function returnToLanding() {
 
 if (btnEnter) btnEnter.addEventListener('click', enterWorkspace);
 if (btnEnterNav) btnEnterNav.addEventListener('click', enterWorkspace);
+if (btnEnterManifesto) btnEnterManifesto.addEventListener('click', enterWorkspace);
 if (btnBackIntro) btnBackIntro.addEventListener('click', returnToLanding);
+
+// Scrollspy for active nav link
+window.addEventListener('scroll', () => {
+  const scrollPos = window.scrollY + 120;
+  const sections = [
+    { id: 'home-hero', key: 'home' },
+    { id: 'features', key: 'features' },
+    { id: 'about', key: 'about' }
+  ];
+
+  sections.forEach((sec) => {
+    const el = document.getElementById(sec.id);
+    if (!el) return;
+    const top = el.offsetTop;
+    const height = el.offsetHeight;
+
+    if (scrollPos >= top && scrollPos < top + height) {
+      navLinks.forEach((link) => {
+        link.classList.toggle('active', link.dataset.nav === sec.key);
+      });
+    }
+  });
+});
 
 // ==========================================================================
 // 3. Gemini-Style Logo Rail Toggle
@@ -80,59 +106,7 @@ if (btnRailToggle) {
 }
 
 // ==========================================================================
-// 4. Live Landing Page Showcase Simulator Loop
-// ==========================================================================
-function startLiveLandingSimulation() {
-  const animCheck = document.getElementById('demo-anim-check');
-  const animTask = document.getElementById('demo-anim-task');
-  const typingText = document.getElementById('demo-typing-text');
-  if (!animCheck || !animTask || !typingText) return;
-
-  const phrase = 'Publish updated roadmap milestone';
-  let charIndex = 0;
-  let isDeleting = false;
-  let checkCompleted = false;
-
-  function tick() {
-    // 1. Typing animation simulation
-    if (!isDeleting && charIndex <= phrase.length) {
-      typingText.textContent = phrase.substring(0, charIndex);
-      charIndex++;
-      setTimeout(tick, 90);
-    } else if (!isDeleting && charIndex > phrase.length) {
-      // Pause after full typing, then complete the sample task
-      setTimeout(() => {
-        checkCompleted = !checkCompleted;
-        if (checkCompleted) {
-          animCheck.classList.add('filled');
-          animCheck.textContent = '✓';
-          animTask.classList.add('completed');
-        } else {
-          animCheck.classList.remove('filled');
-          animCheck.textContent = '';
-          animTask.classList.remove('completed');
-        }
-        isDeleting = true;
-        setTimeout(tick, 1200);
-      }, 1000);
-    } else if (isDeleting && charIndex >= 0) {
-      typingText.textContent = phrase.substring(0, charIndex);
-      charIndex--;
-      setTimeout(tick, 40);
-    } else {
-      isDeleting = false;
-      charIndex = 0;
-      setTimeout(tick, 600);
-    }
-  }
-
-  tick();
-}
-
-startLiveLandingSimulation();
-
-// ==========================================================================
-// 5. Date Helpers
+// 4. Date Helpers
 // ==========================================================================
 function getTodayString() {
   const d = new Date();
@@ -166,7 +140,7 @@ function formatDisplayDate(dateStr) {
 let selectedDueDate = getTodayString();
 
 // ==========================================================================
-// 6. Task State & Persistence
+// 5. Task State & Persistence
 // ==========================================================================
 const STORAGE_KEY = 'listium_tasks_v1';
 let currentFilter = 'all';
@@ -200,27 +174,35 @@ function getStarterTasks() {
   return [
     {
       id: 'task_1',
-      title: 'Review and reply to pending client inquiries',
-      category: 'low',
+      title: 'Review system architectural plan',
+      category: 'high',
       dueDate: getTodayString(),
-      completed: false,
-      createdAt: Date.now()
+      completed: true,
+      createdAt: Date.now() - 4000
     },
     {
       id: 'task_2',
-      title: 'Prepare clean project presentation slides',
+      title: 'Outline core responsive endpoints',
       category: 'medium',
       dueDate: getTodayString(),
-      completed: false,
-      createdAt: Date.now() - 1000
+      completed: true,
+      createdAt: Date.now() - 3000
     },
     {
       id: 'task_3',
-      title: 'Complete production task engine sprint',
+      title: 'Deploy Listium engine release',
       category: 'high',
       dueDate: getTomorrowString(),
-      completed: true,
+      completed: false,
       createdAt: Date.now() - 2000
+    },
+    {
+      id: 'task_4',
+      title: 'Schedule sprint retrospective',
+      category: 'low',
+      dueDate: getTomorrowString(),
+      completed: false,
+      createdAt: Date.now() - 1000
     }
   ];
 }
@@ -236,7 +218,7 @@ function saveTasks() {
 }
 
 // ==========================================================================
-// 7. Form Date Controls
+// 6. Form Date Controls
 // ==========================================================================
 const btnDatePresets = document.querySelectorAll('.btn-date-preset');
 const customDateInput = document.getElementById('task-due-date-custom');
@@ -267,7 +249,7 @@ if (customDateInput) {
 }
 
 // ==========================================================================
-// 8. Task Management & Inline Editing
+// 7. Task Management & Inline Editing
 // ==========================================================================
 const taskForm = document.getElementById('task-form');
 const taskTitleInput = document.getElementById('task-title-input');
@@ -407,7 +389,7 @@ function saveInlineEdit(taskId, newTitle) {
 
 function getPriorityLabel(cat) {
   switch (cat) {
-    case 'high':   return 'High Priority';
+    case 'high':   return 'High ';
     case 'medium': return 'Medium';
     case 'low':    return 'Low';
     default:       return 'Medium';
@@ -415,7 +397,7 @@ function getPriorityLabel(cat) {
 }
 
 // ==========================================================================
-// 9. Rail Filtering Controls
+// 8. Rail Filtering Controls
 // ==========================================================================
 railNavItems.forEach((btn) => {
   btn.addEventListener('click', () => {
@@ -496,7 +478,7 @@ function updateRailCounts() {
 }
 
 // ==========================================================================
-// 10. Main Render Engine
+// 9. Main Render Engine
 // ==========================================================================
 function renderTasks() {
   const today = getTodayString();

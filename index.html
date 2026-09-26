@@ -14,25 +14,25 @@
   <!-- Screen 1: Editorial Landing Page -->
   <section id="intro-screen" class="intro-screen">
     
-    <!-- Top Navigation Bar (Links on right next to button) -->
+    <!-- Sticky Top Navigation Bar -->
     <header class="landing-nav">
-      <div class="brand-lockup">
+      <a href="#home-hero" class="brand-lockup">
         <img src="./logo.svg" alt="Listium Emblem" class="brand-logo-icon" width="28" height="28">
         <span class="brand-logo-text">Listium</span>
-      </div>
+      </a>
 
       <div class="nav-right-cluster">
         <nav class="nav-links-right">
-          <a href="#intro-screen" class="nav-link active">Home</a>
-          <a href="#intro-screen" class="nav-link">Features</a>
-          <a href="#intro-screen" class="nav-link">About</a>
+          <a href="#home-hero" class="nav-link active" data-nav="home">Home</a>
+          <a href="#features" class="nav-link" data-nav="features">Features</a>
+          <a href="#about" class="nav-link" data-nav="about">About</a>
         </nav>
         <button id="btn-enter-nav" class="btn-open-workspace-nav" type="button">Open Workspace</button>
       </div>
     </header>
 
-    <!-- Main Hero Body -->
-    <div class="landing-container">
+    <!-- Hero Section -->
+    <div id="home-hero" class="landing-container">
       <div class="hero-split">
         
         <!-- Left: Copy & CTA -->
@@ -105,7 +105,7 @@
                     <h3 class="mini-title">Today's Focus</h3>
                     <span class="mini-count-subtitle">3 of 4 completed</span>
                   </div>
-                  <span class="mini-pill-high">High Priority</span>
+                  <span class="mini-pill-high">High </span>
                 </div>
 
                 <!-- Exact Task Stack from Mockup -->
@@ -181,7 +181,73 @@
       </footer>
     </div>
 
-    <!-- Exact Botanical Dune and Leaves Matching Closeup -->
+    <!-- Section 2: Features Section -->
+    <section id="features" class="landing-section">
+      <div class="section-container">
+        <div class="section-header-block">
+          <span class="intro-pill-badge">
+            <span class="pill-sparkle">&#10022;</span>
+            <span class="pill-label">ENGINEERED FOR BETTER DISCIPLINE</span>
+          </span>
+          <h2 class="section-title">Built to help you organize your tasks clearly</h2>
+          <p class="section-subtitle">
+            Your day organized at your own pace. No more missing of important deadlines.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <h3 class="card-title">Local-First Privacy</h3>
+            <p class="card-desc">No accounts, no trackers, and no remote servers watching your day. Your ledger lives securely in your own browser's local storage.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <h3 class="card-title">Tri-Tier Priority Engine</h3>
+            <p class="card-desc">Assign High, Medium, or Low priority with a single click. Filter by what matters right now without getting lost in multi-layer nested menus.</p>
+          </div>
+
+          <div class="feature-card">
+            <div class="card-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </div>
+            <h3 class="card-title">Themes</h3>
+            <p class="card-desc">Inhanced visuality with dark and light mode based on your prefereneces</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: About / Manifesto Section -->
+    <section id="about" class="landing-section alt-bg">
+      <div class="section-container">
+        <div class="about-manifesto-card">
+          <span class="manifesto-tag">ABOUT LISTIUM</span>
+          <h2 class="manifesto-title">A little order for busy days.</h2>
+          <p class="manifesto-text">
+            Listium is a simple space for organizing the things that matter. Create tasks, set priorities, and keep track of your day without unnecessary clutter.
+
+Built around clarity and simplicity, Listium helps you focus on what needs to be done — one task at a time.
+          </p>
+          <div class="manifesto-footer">
+            <button id="btn-enter-manifesto" class="btn-launch-hero" type="button">
+              <span>Start Your Day in Listium</span>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Botanical Leaf & Sand Dune Corner (Anchored to hero bottom right) -->
     <div class="botanical-corner" aria-hidden="true">
       <svg class="botanical-illustration" viewBox="0 0 340 300" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -270,7 +336,7 @@
         <span class="rail-section-header">Priority Tiers</span>
         <button class="rail-priority-item" data-priority-target="high">
           <span class="p-dot dot-high"></span>
-          <span class="rail-label">High Priority</span>
+          <span class="rail-label">High </span>
           <span class="rail-badge" id="count-p-high">0</span>
         </button>
         <button class="rail-priority-item" data-priority-target="medium">
@@ -341,7 +407,7 @@
               <div class="category-selectors">
                 <label class="cat-chip">
                   <input type="radio" name="task-category" value="high" checked>
-                  <span class="chip-label chip-high">High Priority</span>
+                  <span class="chip-label chip-high">High</span>
                 </label>
                 <label class="cat-chip">
                   <input type="radio" name="task-category" value="medium">
